@@ -1,0 +1,99 @@
+/*
+    FEATURE:
+
+    * Page Table Walker
+    * Walks through page tables and prints information
+*/
+
+/*
+    SUBROUTINE:
+
+    * PTWalkerPrintEntry()
+    * Prints the individual entries for a PTE structure. For use with the page table walker module.
+*/
+void PTWalkerPrintEntry(struct PTE* entry)
+{
+    sprint("Entry = {\n");
+
+    sprint("    Present = ");
+    if (entry->Present)
+    {
+        sprint("True\n");
+    } else sprint("False\n");
+    sprint("    RW = ");
+    if (entry->RW)
+    {
+        sprint("True\n");
+    } else sprint("False\n");
+    sprint("    UserSuper = ");
+    if (entry->UserSupervisor)
+    {
+        sprint("True\n");
+    } else sprint("False\n");
+    sprint("    Page-level writethrough = ");
+    if (entry->PLWriteThrough)
+    {
+        sprint("True\n");
+    } else sprint("False\n");
+    sprint("    Page-level cache disable bit = ");
+    if (entry->PLCacheDisable)
+    {
+        sprint("True\n");
+    } else sprint("False\n");
+    sprint("    Accessed = ");
+    if (entry->Accessed)
+    {
+        sprint("True\n");
+    } else sprint("False\n");
+    sprint("    Physical address pointer = ");
+    if (entry->PhysAddr != 0)
+    {
+        sprint("OK\n");
+    } else sprint("nullptr\n");
+    
+    sprint("}\n");
+
+    
+}
+
+/*
+    SUBROUTINE:
+
+    * PageTableWalker()
+    * Implements the page table walker feature.
+*/
+
+void PageTableWalker(struct PT* pml4, uint64_t page)
+{
+    size_t pml4_entry = (page & (0x1FFULL << 39)) >> 39;
+    size_t pdpt_entry = (page & (0x1FFULL << 30)) >> 30;
+    size_t pd_entry = (page & (0x1FFULL << 21)) >> 21;
+    size_t pt_entry = (page & (0x1FFULL << 12)) >> 12;
+
+    printf("Page Table Walker module: Traversing through mem address 0x%d\n", page);
+
+    printf("Traversing into PML4[%d]\n", pml4_entry);
+    PTWalkerPrintEntry(&pml4->values[pml4_entry]);
+    sprint("\n\n");
+
+    struct PT* pml3 = (struct PT*)(uint64_t)(pml4->values[pml4_entry].PhysAddr << 12); // Points down to PML3
+
+    printf("Traversing into PML3[%d]\n", pdpt_entry);
+    PTWalkerPrintEntry(&pml3->values[pdpt_entry]);
+    sprint("\n\n");
+
+    struct PT* pml2 = (struct PT*)(uint64_t)(pml3->values[pdpt_entry].PhysAddr << 12);
+
+    printf("Traversing into PML2[%d]\n", pd_entry);
+    PTWalkerPrintEntry(&pml2->values[pd_entry]);
+    sprint("\n\n");
+
+    struct PT* pml1 = (struct PT*)(uint64_t)(pml2->values[pd_entry].PhysAddr << 12);
+
+    printf("Traversing into PML1[%d]\n", pt_entry);
+    PTWalkerPrintEntry(&pml1->values[pt_entry]);
+    sprint("\n\n");
+
+ 
+
+}

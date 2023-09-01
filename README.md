@@ -1,4 +1,7 @@
 # System/14
+# ARCHIVE ARCHIVE ARCHIVE ARCHIVE ARCHIVE ARHIVE ARCHIVE
+# A rewrite (System/28) is underway.
+
 ## What?
 - A 'kernel' written in pure C.
 - The aim is for it to one day become a functional workstation system.
